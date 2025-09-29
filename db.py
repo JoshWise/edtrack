@@ -39,6 +39,17 @@ except Exception:
 # Fall back to environment variables
 DB_URL = DB_URL or os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URL")
 
+# If no DATABASE_URL is set, try to construct it from individual variables
+if not DB_URL:
+    postgres_user = os.getenv("POSTGRES_USER", "postgres")
+    postgres_password = os.getenv("POSTGRES_PASSWORD", "postgres")
+    postgres_db = os.getenv("POSTGRES_DB", "edtrack")
+    postgres_host = os.getenv("POSTGRES_HOST", "localhost")
+    postgres_port = os.getenv("POSTGRES_PORT", "5432")
+    
+    # Construct DATABASE_URL from individual components
+    DB_URL = f"postgresql+psycopg2://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_db}"
+
 # Final fallback: local SQLite file (safe for dev)
 if not DB_URL:
     # Choose one behavior: EITHER hard-fail with an explicit error...
